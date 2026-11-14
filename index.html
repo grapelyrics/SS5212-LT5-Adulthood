@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SS5212 Lecture 6 × Lecture 10 Quiz</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+      color: #243047;
+      background: #f3f6fb;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #29457d;
+      line-height: 1.25;
+    }
+
+    .card, .question, .result {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      margin: 16px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #eaf0ff;
+      color: #31529b;
+      font-size: .85rem;
+      font-weight: bold;
+    }
+
+    .question h2 {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      margin: 12px 0;
+    }
+
+    label {
+      display: block;
+      padding: 10px;
+      margin: 7px 0;
+      border-radius: 8px;
+      background: #f7f9fc;
+      cursor: pointer;
+    }
+
+    label:hover {
+      background: #edf2ff;
+    }
+
+    input {
+      margin-right: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 13px 18px;
+      margin: 8px 8px 8px 0;
+      background: #3158ad;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .reset {
+      background: #69758a;
+    }
+
+    .feedback {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #edf3ff;
+    }
+
+    .result {
+      display: none;
+      border-left: 5px solid #3158ad;
+    }
+
+    .correct {
+      color: #14743a;
+      font-weight: bold;
+    }
+
+    .incorrect {
+      color: #b42929;
+      font-weight: bold;
+    }
+
+    .small {
+      font-size: .9rem;
+      color: #526078;
+    }
+
+    #progress {
+      font-weight: bold;
+      color: #31529b;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>SS5212 Lecture 6 × Lecture 10</h1>
+
+  <div class="card">
+    <p><strong>50 original multiple-choice questions</strong></p>
+
+    <p>
+      Choose one answer for each question. Press
+      <strong>Submit answers</strong> to see your score
+      and Chinese explanations.
+    </p>
+
+    <p>
+      ⭐ <strong>Core:</strong> topics overlapping with Lecture 10.<br>
+      📘 <strong>Supplementary:</strong> additional Lecture 6 concepts.
+    </p>
+
+    <p class="small">
+      This is an original practice quiz, not a verified CityU past paper.
+      ACE and stress response are not included.
+    </p>
+
+    <p class="small">
+      The quiz attempts to save your selections in this browser.
+      Progress does not automatically sync across devices.
+      Clearing browser data or using private browsing may remove it.
+    </p>
+
+    <p id="progress" aria-live="polite"></p>
+    <p id="storageMessage" class="small" aria-live="polite"></p>
+  </div>
+
+  <div id="result" class="result" aria-live="polite"></div>
+
+  <form id="quiz"></form>
+
+  <button type="button" id="submitButton">Submit answers</button>
+  <button type="button" id="resetButton" class="reset">Reset quiz</button>
+
+</div>
+
+<script>
+/*
+  Each question contains:
+  tag: topic
+  q: English question
+  options: four choices
+  explanation: Chinese explanation
+
+  The first option in the data is correct.
+  The displayed options are rotated automatically.
+*/
+
+const questions = [
+
+  // ================================================
+  // Q1–16: STERNBERG'S TRIANGULAR THEORY OF LOVE
+  // ================================================
+
+  {
+    tag: "⭐ Core — Sternberg: components",
+    q: "Two partners describe their relationship as emotionally close. They trust each other, share personal concerns and feel understood. Which component is most directly illustrated?",
+    options: [
+      "Intimacy",
+      "Passion",
+      "Commitment",
+      "Infatuation"
+    ],
+    explanation: "Intimacy 指情感上的親近、信任、連結及自我透露。單憑親近不能推定 passion 或 commitment 的程度。"
+  },
+
+  {
+    tag: "⭐ Core — Sternberg: components",
+    q: "A person experiences strong physical attraction and sexual desire toward someone they have recently met. Which component is most directly illustrated?",
+    options: [
+      "Passion",
+      "Intimacy",
+      "Commitment",
+      "Companionate love"
+    ],
+    explanation: "Passion 是吸引、慾望及浪漫驅力；題目沒有足夠資料判定親密或承諾。"
+  },
+
+  {
+    tag: "⭐ Core — Sternberg: components",
+    q: "A couple consciously decides to maintain their relationship and plans to invest time in their future together. Which component is most directly highlighted?",
+    options: [
+      "Commitment",
+      "Passion",
+      "Intimacy",
+      "Infatuation"
+    ],
+    explanation: "Commitment 是決定維持關係及投入資源；有承諾不代表必然有高親密或激情。"
+  },
+
+  {
+    tag: "⭐ Core — Romantic love",
+    q: "A couple feels emotionally close and strongly attracted to each other. Both say they have not decided whether to maintain the relationship long term. Which love type best fits the stated components?",
+    options: [
+      "Romantic love",
+      "Companionate love",
+      "Fatuous love",
+      "Empty love"
+    ],
+    explanation: "Romantic love＝intimacy＋passion；題目明示未有長期 commitment。"
+  },
+
+  {
+    tag: "⭐ Core — Companionate love",
+    q: "Partners have a close, trusting friendship and are committed to remaining together. They report little current physical passion. Which type best fits?",
+    options: [
+      "Companionate love",
+      "Romantic love",
+      "Fatuous love",
+      "Infatuation"
+    ],
+    explanation: "Companionate love＝intimacy＋commitment，沒有顯著 passion。"
+  },
+
+  {
+    tag: "⭐ Core — Fatuous love",
+    q: "Two people experience intense attraction and rapidly make a long-term commitment. They acknowledge that they do not yet know each other deeply or share emotional confidences. Which type best fits?",
+    options: [
+      "Fatuous love",
+      "Companionate love",
+      "Romantic love",
+      "Liking"
+    ],
+    explanation: "Fatuous love＝passion＋commitment，但缺少 intimacy。快速承諾本身不是唯一判斷依據；關鍵是三個成分。"
+  },
+
+  {
+    tag: "⭐ Core — Empty love",
+    q: "A couple remains committed to staying together, but both report that emotional closeness and physical attraction are currently absent. Which type best fits this description?",
+    options: [
+      "Empty love",
+      "Companionate love",
+      "Romantic love",
+      "Infatuation"
+    ],
+    explanation: "Empty love 只有 commitment，缺少 intimacy 和 passion。"
+  },
+
+  {
+    tag: "⭐ Core — Infatuation",
+    q: "A person feels intense attraction toward someone but reports no close emotional bond and no decision to maintain a relationship. Which type best fits?",
+    options: [
+      "Infatuation",
+      "Liking",
+      "Empty love",
+      "Companionate love"
+    ],
+    explanation: "Infatuation 只有 passion；沒有明確 intimacy 或 commitment。"
+  },
+
+  {
+    tag: "⭐ Core — Liking",
+    q: "Two people feel warmth and emotional closeness. They report no romantic passion and have not made a long-term relationship commitment. Which type best fits?",
+    options: [
+      "Liking",
+      "Infatuation",
+      "Empty love",
+      "Fatuous love"
+    ],
+    explanation: "Liking 以 intimacy 為主；題目明示沒有 passion 或 commitment。"
+  },
+
+  {
+    tag: "⭐ Core — Consummate love",
+    q: "A couple reports emotional closeness, strong attraction and a deliberate commitment to maintain their relationship. Which type best fits?",
+    options: [
+      "Consummate love",
+      "Romantic love",
+      "Companionate love",
+      "Fatuous love"
+    ],
+    explanation: "Consummate love 同時包含 intimacy、passion 和 commitment。"
+  },
+
+  {
+    tag: "⭐ Core — Romantic vs companionate",
+    q: "Relationship A has closeness and passion but no established commitment. Relationship B has closeness and commitment but little passion. Which pairing is most accurate?",
+    options: [
+      "A: romantic; B: companionate",
+      "A: companionate; B: romantic",
+      "A: fatuous; B: empty",
+      "A: empty; B: infatuation"
+    ],
+    explanation: "兩者都有 intimacy；romantic 加 passion，companionate 加 commitment。"
+  },
+
+  {
+    tag: "⭐ Core — Fatuous vs empty",
+    q: "Both couples are committed. Couple A also reports strong passion but little emotional closeness. Couple B reports neither passion nor closeness. Which pairing best fits?",
+    options: [
+      "A: fatuous; B: empty",
+      "A: companionate; B: romantic",
+      "A: empty; B: fatuous",
+      "A: romantic; B: liking"
+    ],
+    explanation: "兩者都有 commitment；A 多了 passion，是 fatuous；B 只有 commitment，是 empty。"
+  },
+
+  {
+    tag: "⭐ Core — Missing component",
+    q: "A relationship is described as companionate. Which component is absent or low in the simplified classification used in the lecture?",
+    options: [
+      "Passion",
+      "Intimacy",
+      "Commitment",
+      "Both intimacy and commitment"
+    ],
+    explanation: "Companionate＝intimacy＋commitment；分類時缺少或較低的是 passion。"
+  },
+
+  {
+    tag: "⭐ Core — Avoiding assumptions",
+    q: "A social worker learns only that two clients have been married for many years. What can be concluded about their Sternberg love type?",
+    options: [
+      "More information about intimacy, passion and commitment is needed",
+      "Their relationship must be companionate",
+      "Their relationship must be empty",
+      "Duration alone proves consummate love"
+    ],
+    explanation: "關係長短或婚姻狀態不足以單獨判斷三個成分；需要了解當事人的經驗。"
+  },
+
+  {
+    tag: "⭐ Core — Change over time",
+    q: "A couple reports that their attraction has changed over several years while their closeness and commitment remain strong. Which interpretation is most consistent with the theory?",
+    options: [
+      "The components of love can vary over the course of a relationship",
+      "Every relationship must retain identical levels of all components",
+      "Commitment automatically guarantees passion",
+      "Emotional closeness cannot change"
+    ],
+    explanation: "三個成分的程度可隨關係發展而改變，不能假設任何一個成分永遠固定。"
+  },
+
+  {
+    tag: "⭐ Core — Applying the triangle",
+    q: "A couple reports strong attraction and emotional closeness but disagrees about whether they wish to remain together long term. Which two components are clearly present in the case?",
+    options: [
+      "Passion and intimacy",
+      "Passion and commitment",
+      "Commitment and intimacy",
+      "Commitment only"
+    ],
+    explanation: "案例明確顯示 passion 和 intimacy；對長期關係的分歧不足以證明雙方已有 commitment。"
+  },
+
+  // ================================================
+  // Q17–34: KOHLBERG'S MORAL DEVELOPMENT
+  // ================================================
+
+  {
+    tag: "⭐ Core — Kohlberg: method",
+    q: "Two people make the same decision about an ethical dilemma but give very different reasons. In Kohlberg's approach, what is most important for classification?",
+    options: [
+      "The reasoning used to justify the decision",
+      "Whether both chose the same action",
+      "Whether the interviewer agrees with the decision",
+      "The person's occupation alone"
+    ],
+    explanation: "Kohlberg 主要分析「為甚麼這樣判斷」，不是只看答案是做或不做。"
+  },
+
+  {
+    tag: "⭐ Core — Kohlberg: stage 1",
+    q: "A student refuses to cheat because they believe they will be punished if caught. Which reasoning is most directly illustrated?",
+    options: [
+      "Stage 1: obedience and punishment",
+      "Stage 2: individual exchange",
+      "Stage 3: interpersonal approval",
+      "Stage 4: social order"
+    ],
+    explanation: "理由集中在避免懲罰，是 Stage 1。重點不是「不作弊」本身，而是原因。"
+  },
+
+  {
+    tag: "⭐ Core — Kohlberg: stage 2",
+    q: "A student helps a classmate because the classmate has promised to help them prepare for an interview in return. Which reasoning is most directly illustrated?",
+    options: [
+      "Stage 2: individual interest and exchange",
+      "Stage 1: avoidance of punishment",
+      "Stage 3: being seen as a good person",
+      "Stage 6: universal ethical principles"
+    ],
+    explanation: "理由集中在個人利益及交換，較符合 Stage 2。"
+  },
+
+  {
+    tag: "⭐ Core — Kohlberg: stage 3",
+    q: "A worker supports a colleague because 'a good teammate should be caring, and I do not want the team to think I am disloyal.' Which stage is most directly illustrated?",
+    options: [
+      "Stage 3: interpersonal expectations",
+      "Stage 1: punishment avoidance",
+      "Stage 4: maintaining legal order",
+      "Stage 5: social contract"
+    ],
+    explanation: "強調做好人、履行關係角色及他人認可，屬 Stage 3。"
+  },
+
+  {
+    tag: "⭐ Core — Kohlberg: stage 4",
+    q: "A person argues that a reporting rule should generally be followed because institutions depend on people fulfilling their duties and maintaining a predictable social order. Which stage is most directly illustrated?",
+    options: [
+      "Stage 4: law and social order",
+      "Stage 2: individual exchange",
+      "Stage 3: seeking personal approval",
+      "Stage 6: universal principles regardless of law"
+    ],
+    explanation: "以履行義務、維持制度及社會秩序為核心，較符合 Stage 4。"
+  },
+
+  {
+    tag: "⭐ Core — Kohlberg: stage 5",
+    q: "A policy analyst values the rule of law but argues that a law should be democratically revised when it fails to protect fundamental rights. Which stage best fits this reasoning?",
+    options: [
+      "Stage 5: social contract and individual rights",
+      "Stage 1: avoiding punishment",
+      "Stage 3: interpersonal approval",
+      "Stage 4: rules must never be questioned"
+    ],
+    explanation: "Stage 5 重視社會契約、權利及法律的可修訂性，而非認為任何法律都不可改變。"
+  },
+
+  {
+    tag: "⭐ Core — Kohlberg: stage 6",
+    q: "A practitioner follows an internally held principle that every person deserves equal moral respect, even when an existing rule conflicts with that principle. Which stage is most directly illustrated?",
+    options: [
+      "Stage 6: universal ethical principles",
+      "Stage 2: individual exchange",
+      "Stage 3: approval from colleagues",
+      "Stage 4: obedience for social order"
+    ],
+    explanation: "Stage 6 的關鍵是自覺且普遍適用的倫理原則，即使與現行規則衝突仍以原則推理。"
+  },
+
+  {
+    tag: "⭐ Core — Stage 5 vs stage 6",
+    q: "Speaker A argues for changing a law through public agreement because it fails to protect rights. Speaker B relies on an internal principle of equal justice that should apply to everyone, even against the law. Which pairing is best?",
+    options: [
+      "A: stage 5; B: stage 6",
+      "A: stage 6; B: stage 5",
+      "A: stage 3; B: stage 4",
+      "A: stage 1; B: stage 2"
+    ],
+    explanation: "A 著重社會契約、權利和法律修訂；B 著重普遍、內化的正義原則。"
+  },
+
+  {
+    tag: "⭐ Core — Stage 3 vs stage 4",
+    q: "One person follows a rule to be regarded as a responsible colleague. Another follows it because they believe shared duties maintain social institutions. Which pairing is most accurate?",
+    options: [
+      "Stage 3; stage 4",
+      "Stage 4; stage 3",
+      "Stage 1; stage 2",
+      "Stage 5; stage 6"
+    ],
+    explanation: "Stage 3 重人際角色與認可；Stage 4 重社會制度、義務和秩序。"
+  },
+
+  {
+    tag: "⭐ Core — Stage 1 vs stage 2",
+    q: "One student follows a rule to avoid detention. Another follows it because doing so earns a reward. Which pairing is most appropriate?",
+    options: [
+      "Stage 1; stage 2",
+      "Stage 2; stage 1",
+      "Stage 3; stage 4",
+      "Stage 5; stage 6"
+    ],
+    explanation: "避免懲罰是 Stage 1；爭取個人獎賞較符合 Stage 2。"
+  },
+
+  {
+    tag: "⭐ Core — Same decision, different reasons",
+    q: "Two people both decide not to break a rule. One fears punishment; the other believes that following shared rules helps maintain social order. Which interpretation is best?",
+    options: [
+      "The same action can reflect different stages because the reasoning differs",
+      "Both must be at stage 1 because the action is the same",
+      "Both must be at stage 6 because they obeyed a rule",
+      "Kohlberg classifies only whether a rule is broken"
+    ],
+    explanation: "同一行動可以有不同理由：避免懲罰偏 Stage 1；維持社會秩序偏 Stage 4。"
+  },
+
+  {
+    tag: "⭐ Core — Stage 5 reasoning",
+    q: "A student says, 'Rules are useful for cooperation, but citizens should be able to revise a rule that unfairly restricts a basic right.' What is the strongest cue?",
+    options: [
+      "Balancing social rules with rights and legitimate revision",
+      "Fear of immediate punishment",
+      "A wish for a personal reward",
+      "A desire to be liked by friends"
+    ],
+    explanation: "題目同時重視社會規則與個人權利，並認為規則可透過合理程序修改，偏 Stage 5。"
+  },
+
+  {
+    tag: "⭐ Core — Stage 6 reasoning",
+    q: "A person rejects a discriminatory rule because, in their view, treating every individual as equally worthy is a principle that remains binding regardless of popularity or legal status. What is the strongest cue?",
+    options: [
+      "A universal principle applied independently of the rule's legal status",
+      "Concern only about a personal reward",
+      "A wish to receive social approval",
+      "Automatic obedience to authority"
+    ],
+    explanation: "理由以普遍、內化的平等原則為核心，而非單靠多數意見或既有法律，偏 Stage 6。"
+  },
+
+  {
+    tag: "⭐ Core — Limits of classification",
+    q: "A client says, 'That law is unfair,' but gives no explanation. What is the most defensible Kohlberg classification?",
+    options: [
+      "The information is insufficient to identify a stage confidently",
+      "The statement proves stage 6",
+      "The statement proves stage 5",
+      "The statement proves stage 1"
+    ],
+    explanation: "只說法律不公平，尚不知道是基於權利、普遍原則、個人利益還是其他原因；需要追問理由。"
+  },
+
+  {
+    tag: "⭐ Core — Levels",
+    q: "Which pair belongs to the conventional level in Kohlberg's model?",
+    options: [
+      "Stages 3 and 4",
+      "Stages 1 and 2",
+      "Stages 5 and 6",
+      "Stages 2 and 5"
+    ],
+    explanation: "Conventional level 包括 Stage 3 的人際期待和 Stage 4 的社會秩序。"
+  },
+
+  {
+    tag: "⭐ Core — Levels",
+    q: "Which pair belongs to the post-conventional level in Kohlberg's model?",
+    options: [
+      "Stages 5 and 6",
+      "Stages 1 and 2",
+      "Stages 2 and 3",
+      "Stages 3 and 4"
+    ],
+    explanation: "Post-conventional 包括 Stage 5 社會契約及權利，以及 Stage 6 普遍倫理原則。"
+  },
+
+  {
+    tag: "⭐ Core — Dilemma reasoning",
+    q: "A practitioner says, 'I should not take the resource because I could lose my job.' Which feature of the reasoning is most relevant to Kohlberg's stage 1?",
+    options: [
+      "Avoidance of a negative consequence for the self",
+      "Commitment to a universally applicable principle",
+      "Balancing social contract and rights",
+      "Maintaining a relationship through mutual concern"
+    ],
+    explanation: "理由集中在避免自身受到懲罰或不利後果，偏 Stage 1。"
+  },
+
+  {
+    tag: "⭐ Core — Ethical dilemma",
+    q: "Two social workers disagree about a case but both identify competing professional values. What is the most appropriate next step when applying Kohlberg for learning?",
+    options: [
+      "Examine how each worker justifies the decision rather than classify the decision alone",
+      "Assume the more senior worker is automatically at stage 6",
+      "Classify both workers by age",
+      "Assume that choosing the same action means identical reasoning"
+    ],
+    explanation: "Kohlberg 的重點是推理方式；資歷、年齡或選擇的行動本身都不足以確定階段。"
+  },
+
+  // ================================================
+  // Q35–46: ERIKSON IN ADULTHOOD
+  // ================================================
+
+  {
+    tag: "⭐ Core — Erikson: intimacy",
+    q: "A young adult wants a close relationship but worries that becoming emotionally involved will mean losing their own sense of self. Which psychosocial tension is most relevant?",
+    options: [
+      "Intimacy versus isolation",
+      "Industry versus inferiority",
+      "Trust versus mistrust",
+      "Integrity versus despair"
+    ],
+    explanation: "案例關注與他人建立親密關係，同時維持自我，最直接對應 intimacy versus isolation。"
+  },
+
+  {
+    tag: "⭐ Core — Erikson: virtue",
+    q: "In the Lecture 6 discussion of intimacy versus isolation, which virtue is associated with forming meaningful, lasting relationships?",
+    options: [
+      "Love",
+      "Hope",
+      "Will",
+      "Competence"
+    ],
+    explanation: "Lecture 6 將 intimacy versus isolation 的 virtue 列為 love。"
+  },
+
+  {
+    tag: "⭐ Core — Intimacy and identity",
+    q: "A client wants to develop a close relationship without giving up personal values and boundaries. Which interpretation best reflects the Lecture 6 discussion?",
+    options: [
+      "Healthy intimacy can involve closeness while maintaining a sense of self",
+      "Intimacy requires abandoning all personal identity",
+      "Identity becomes irrelevant once a relationship begins",
+      "A relationship can be intimate only if partners never disagree"
+    ],
+    explanation: "健康親密不是失去自我；可以同時維持個人價值、界線和情感連結。"
+  },
+
+  {
+    tag: "⭐ Core — Friendship and intimacy",
+    q: "A person is single but has several close, supportive friendships involving mutual care and trust. Which statement is most appropriate?",
+    options: [
+      "Intimacy can also be expressed through close friendships",
+      "Only marriage can resolve the intimacy task",
+      "Being single proves isolation",
+      "Close friendships are unrelated to intimacy"
+    ],
+    explanation: "Lecture 6 提到親密可透過親密友誼或長期伴侶關係發展；單身不等於 isolation。"
+  },
+
+  {
+    tag: "⭐ Core — Generativity",
+    q: "A midlife professional mentors new colleagues and volunteers to improve services for future users. Which Eriksonian concept is most directly illustrated?",
+    options: [
+      "Generativity",
+      "Role confusion",
+      "Mistrust",
+      "Isolation"
+    ],
+    explanation: "Generativity 包括關心及培育他人、為下一代或社會作出貢獻，不限於養育子女。"
+  },
+
+  {
+    tag: "⭐ Core — Generativity and stagnation",
+    q: "A person describes an ongoing pattern of focusing exclusively on personal gratification while showing little concern for contributions to others. In Erikson's framework, which pole is most relevant?",
+    options: [
+      "Stagnation",
+      "Generativity",
+      "Intimacy",
+      "Industry"
+    ],
+    explanation: "Lecture 6 將 stagnation 與難以超越自身需要、缺乏持續成長及對他人的關注連結。"
+  },
+
+  {
+    tag: "⭐ Core — Erikson: care",
+    q: "Which virtue does Lecture 6 associate with generativity versus stagnation?",
+    options: [
+      "Care",
+      "Fidelity",
+      "Hope",
+      "Purpose"
+    ],
+    explanation: "Generativity versus stagnation 的 virtue 是 care；intimacy 階段則與 love 連結。"
+  },
+
+  {
+    tag: "⭐ Core — Non-parental generativity",
+    q: "A child-free adult supports younger artists through teaching and community projects. Which interpretation best fits Erikson's concept?",
+    options: [
+      "Generativity can be expressed without becoming a parent",
+      "Generativity requires biological parenthood",
+      "The person must be experiencing stagnation",
+      "Only paid employment can demonstrate generativity"
+    ],
+    explanation: "Generativity 可透過教學、義工、工作或社區參與表達，不要求有子女。"
+  },
+
+  {
+    tag: "⭐ Core — Comparing adult tasks",
+    q: "Client A is concerned about forming a close, mutual relationship. Client B is concerned about making a lasting contribution to younger people. Which pairing is most direct?",
+    options: [
+      "A: intimacy; B: generativity",
+      "A: generativity; B: intimacy",
+      "A: trust; B: autonomy",
+      "A: industry; B: role confusion"
+    ],
+    explanation: "A 的重點是建立親密；B 的重點是培育他人及留下貢獻，即 generativity。"
+  },
+
+  {
+    tag: "⭐ Core — Psychosocial crisis",
+    q: "A student says that an Eriksonian crisis always means a psychiatric emergency. Which correction is most accurate?",
+    options: [
+      "It can refer to a normal developmental tension or task",
+      "It always means a diagnosable disorder",
+      "It occurs only after age 65",
+      "It means development has permanently stopped"
+    ],
+    explanation: "Erikson 的 psychosocial crisis 指發展任務中的張力，不必然是精神科急症。"
+  },
+
+  {
+    tag: "⭐ Core — Avoiding age assumptions",
+    q: "A 45-year-old is concerned about both close relationships and contributing to future generations. How should a practitioner apply Erikson?",
+    options: [
+      "Consider the stated concerns without assuming age alone determines the only relevant task",
+      "Ignore intimacy because the client is over 40",
+      "Conclude that the client cannot experience generativity",
+      "Diagnose stagnation based on age"
+    ],
+    explanation: "年齡可提供發展背景，但個人可能同時面對不同任務；不能單憑年齡排除關係需要或作診斷。"
+  },
+
+  {
+    tag: "⭐ Core — Social work application",
+    q: "A client reports difficulty maintaining boundaries in a close relationship. Which initial social work response best fits the Lecture 6 discussion?",
+    options: [
+      "Explore the client's goals, sense of self and relationship boundaries",
+      "Instruct the client to end every close relationship",
+      "Assume the client is incapable of intimacy",
+      "Focus only on the client's age"
+    ],
+    explanation: "Lecture 6 提到可支援自我認同、健康界線及關係技巧；應先了解當事人目標，而非替其作決定。"
+  },
+
+  // ================================================
+  // Q47–50: LECTURE 6 SUPPLEMENTARY
+  // ================================================
+
+  {
+    tag: "📘 Supplementary — Fluid intelligence",
+    q: "A worker solves a completely unfamiliar abstract puzzle without relying on previously learned facts. Which ability is most directly involved?",
+    options: [
+      "Fluid intelligence",
+      "Crystallized intelligence",
+      "Companionate love",
+      "Generativity"
+    ],
+    explanation: "Fluid intelligence 涉及處理新資訊、抽象推理及解決陌生問題。"
+  },
+
+  {
+    tag: "📘 Supplementary — Crystallized intelligence",
+    q: "An experienced practitioner uses accumulated vocabulary and professional knowledge to explain a familiar concept. Which ability is most directly illustrated?",
+    options: [
+      "Crystallized intelligence",
+      "Fluid intelligence only",
+      "Identity diffusion",
+      "Role confusion"
+    ],
+    explanation: "Crystallized intelligence 指透過學習和經驗累積的知識及技能，例如詞彙和專業知識。"
+  },
+
+  {
+    tag: "📘 Supplementary — Sandwich generation",
+    q: "A middle-aged adult provides practical support to both a dependent child and an ageing parent while working. Which term from Lecture 6 best describes these overlapping care responsibilities?",
+    options: [
+      "Sandwich generation",
+      "Psychological moratorium",
+      "Fatuous love",
+      "Identity foreclosure"
+    ],
+    explanation: "Sandwich generation 指同時面對照顧子女及年長父母的責任；不代表每位中年人都會如此。"
+  },
+
+  {
+    tag: "📘 Supplementary — Emerging adulthood",
+    q: "A 22-year-old is testing different education and work pathways while seeking greater independence. Which description best fits the Lecture 6 discussion?",
+    options: [
+      "Emerging adulthood may involve exploration of possible adult roles",
+      "Every adult must marry by age 22",
+      "Identity exploration ends automatically at age 18",
+      "The person is necessarily experiencing a midlife crisis"
+    ],
+    explanation: "Lecture 6 將 emerging adulthood 描述為可能探索教育、工作及生活方向的時期；個人經驗並不相同。"
+  }
+
+];
+
+// ================================================
+// QUIZ ENGINE
+// ================================================
+
+const storageKey = "ss5212-lecture6-lecture10-v1";
+const quiz = document.getElementById("quiz");
+const result = document.getElementById("result");
+const progress = document.getElementById("progress");
+const storageMessage = document.getElementById("storageMessage");
+
+let savedAnswers = {};
+let submitted = false;
+
+try {
+  const saved = localStorage.getItem(storageKey);
+
+  if (saved) {
+    const parsed = JSON.parse(saved);
+
+    if (parsed && typeof parsed === "object") {
+      savedAnswers = parsed;
+    }
+  }
+} catch (error) {
+  savedAnswers = {};
+  storageMessage.textContent =
+    "Browser storage
